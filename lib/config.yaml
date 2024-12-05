@@ -11,28 +11,28 @@ groups:
 rules:
   - name: "no_circular_dependencies"
     allowed: false
-    message: "Circular dependencies are not allowed"
+    description: "Circular dependencies are not allowed"
 
   - name: "no_feature_to_feature"
     from: "features"
     to: "features"
     allowed: false
-    message: "Features cannot depend on other features"
+    description: "Features cannot depend on other features"
 
   - name: "no_core_to_feature"
     from: "core"
     to: "features"
     allowed: false
-    message: "Core modules cannot depend on features"
+    description: "Core modules cannot depend on features"
 
-  - name: "core_to_core"
-    from: "core"
-    to: "core"
-    allowed: true
-    message: "Core modules can depend on other core modules"
+  # - name: "core_to_core"
+  #   from: "core"
+  #   to: "core"
+  #   allowed: true
+  #   description: "Core modules can depend on other core modules"
 
-  - name: "feature_to_core"
-    from: "features"
-    to: "core"
-    allowed: true
-    message: "Features can depend on core modules"
+  # - name: "feature_to_core"
+  #   from: "features"
+  #   to: "core"
+  #   allowed: true
+  #   description: "Features can depend on core modules"

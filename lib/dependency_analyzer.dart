@@ -58,38 +58,92 @@ class DependencyAnalyzer {
     }
 
     print(graph);
-    if (config.rules.any((rule) => rule.name == 'no_circular_dependencies')) {
-      findCircularDependencies(graph);
-    }
-
-    findInvalidDependencies(graph, config);
-  }
-
-  Set<String> findInvalidDependencies(Map<String, Set<String>> graph, DependencyConfig config) {
-    final invalidDependencies = <String>{};
-    for (final entry in graph.entries) {
-      final isCore = entry.key.startsWith('core_');
-      final isFeature = entry.key.startsWith('feature_');
-      for (final dep in entry.value) {
-        if (isCore && dep.startsWith('feature_')) {
-          invalidDependencies.add('${entry.key} -> $dep');
-        }
-
-        if (isFeature && dep.startsWith('feature_')) {
-          invalidDependencies.add('${entry.key} -> $dep');
-        }
+    final errors = <String>{};
+    for (var rule in config.rules) {
+      try {
+        rule.evaluate(graph);
+      } on EvaluationError catch (e) {
+        errors.add(e.message);
+      } catch (e) {
+        print('Error evaluating rule ${rule.name}: $e');
+        exit(1);
       }
     }
 
-    print('Found ${invalidDependencies.length} invalid dependencies:');
-    for (final dep in invalidDependencies) {
-      print(dep);
+    if (errors.isNotEmpty) {
+      print('Found ${errors.length} errors:');
+      for (final error in errors) {
+        print(error);
+      }
     }
-    return invalidDependencies;
+  }
+
+  Set<String> getDependenciesFromPackage(Package package) {
+    final pubspecFile = File('${package.path}/pubspec.yaml');
+    if (!pubspecFile.existsSync()) return {};
+
+    final pubspecContent = pubspecFile.readAsStringSync();
+    final pubspec = loadYaml(pubspecContent) as Map;
+
+    final dependencies = <String>{};
+
+    if (pubspec['dependencies'] != null) {
+      final deps = pubspec['dependencies'] as Map;
+      dependencies.addAll(deps.keys.cast<String>());
+    }
+
+    if (pubspec['dev_dependencies'] != null) {
+      final devDeps = pubspec['dev_dependencies'] as Map;
+      dependencies.addAll(devDeps.keys.cast<String>());
+    }
+    print('Package ${package.name} has dependencies: $dependencies');
+
+    return dependencies;
+  }
+}
+
+class EvaluationError extends Error {
+  final String message;
+
+  EvaluationError(this.message);
+}
+
+abstract class DependencyRule {
+  final String name;
+  final String description;
+  final bool allowed;
+
+  DependencyRule({required this.name, required this.description, required this.allowed});
+
+  static DependencyRule fromYaml(YamlMap yaml) {
+    print(yaml);
+    if (yaml['name'] == 'no_circular_dependencies') {
+      return NoCircularDependenciesRule(allowed: yaml['allowed'], description: yaml['description']);
+    } else if (yaml['name'] == 'no_core_to_feature') {
+      return NoCoreToFeatureRule(allowed: yaml['allowed'], description: yaml['description']);
+    } else if (yaml['name'] == 'no_feature_to_feature') {
+      return NoFeatureToFeatureRule(allowed: yaml['allowed'], description: yaml['description']);
+    }
+    throw ArgumentError('Unknown rule: ${yaml['name']}');
+  }
+
+  void evaluate(Map<String, Set<String>> graph);
+}
+
+class NoCircularDependenciesRule extends DependencyRule {
+  NoCircularDependenciesRule({required super.allowed, required super.description})
+      : super(name: 'no_circular_dependencies');
+
+  @override
+  void evaluate(Map<String, Set<String>> graph) {
+    final circularDependencies = _findCircularDependencies(graph);
+    if (circularDependencies.isNotEmpty) {
+      throw EvaluationError('Found circular dependencies: $circularDependencies');
+    }
   }
 
   // Find circular dependencies using DFS
-  Set<String> findCircularDependencies(Map<String, Set<String>> graph) {
+  Set<String> _findCircularDependencies(Map<String, Set<String>> graph) {
     final visited = <String>{};
     final recursionStack = <String>{};
     final circularDependencies = <String>{};
@@ -128,27 +182,56 @@ class DependencyAnalyzer {
     }
     return circularDependencies;
   }
+}
 
-  Set<String> getDependenciesFromPackage(Package package) {
-    final pubspecFile = File('${package.path}/pubspec.yaml');
-    if (!pubspecFile.existsSync()) return {};
+class NoCoreToFeatureRule extends DependencyRule {
+  NoCoreToFeatureRule({required super.allowed, required super.description})
+      : super(name: 'no_core_to_feature');
 
-    final pubspecContent = pubspecFile.readAsStringSync();
-    final pubspec = loadYaml(pubspecContent) as Map;
+  @override
+  void evaluate(Map<String, Set<String>> graph) {
+    final noCoreToFeature = <String>{};
+    for (final entry in graph.entries) {
+      final isCore = entry.key.startsWith('core_');
+      for (final dep in entry.value) {
+        final isFeature = dep.startsWith('feature_');
+        if (isCore && isFeature) {
+          noCoreToFeature.add('${entry.key} -> $dep');
+        }
+      }
+    }
+    print('Found ${noCoreToFeature.length} no core to feature dependencies:');
+    for (final dep in noCoreToFeature) {
+      print(dep);
+    }
+    if (noCoreToFeature.isNotEmpty) {
+      throw EvaluationError('Found no_core_to_feature dependencies: $noCoreToFeature');
+    }
+  }
+}
 
-    final dependencies = <String>{};
+class NoFeatureToFeatureRule extends DependencyRule {
+  NoFeatureToFeatureRule({required super.allowed, required super.description})
+      : super(name: 'no_feature_to_feature');
 
-    if (pubspec['dependencies'] != null) {
-      final deps = pubspec['dependencies'] as Map;
-      dependencies.addAll(deps.keys.cast<String>());
+  @override
+  void evaluate(Map<String, Set<String>> graph) {
+    final noFeatureToFeature = <String>{};
+    for (final entry in graph.entries) {
+      final isFeature = entry.key.startsWith('feature_');
+      for (final dep in entry.value) {
+        if (isFeature && dep.startsWith('feature_')) {
+          noFeatureToFeature.add('${entry.key} -> $dep');
+        }
+      }
     }
 
-    if (pubspec['dev_dependencies'] != null) {
-      final devDeps = pubspec['dev_dependencies'] as Map;
-      dependencies.addAll(devDeps.keys.cast<String>());
+    print('Found ${noFeatureToFeature.length} no feature to feature dependencies:');
+    for (final dep in noFeatureToFeature) {
+      print(dep);
     }
-    print('Package ${package.name} has dependencies: $dependencies');
-
-    return dependencies;
+    if (noFeatureToFeature.isNotEmpty) {
+      throw EvaluationError('Found no_feature_to_feature dependencies: $noFeatureToFeature');
+    }
   }
 }

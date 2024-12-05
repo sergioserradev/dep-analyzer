@@ -1,3 +1,4 @@
+import 'package:dep_analyzer/dependency_analyzer.dart';
 import 'package:yaml/yaml.dart';
 
 class DependencyConfig {
@@ -20,7 +21,7 @@ class DependencyConfig {
 
     final rules = <DependencyRule>[];
     for (final rule in yamlMap['rules']) {
-      rules.add(DependencyRule.fromYaml(rule));
+      rules.add(DependencyRule.fromYaml(rule as YamlMap));
     }
 
     return DependencyConfig(groups: groups, rules: rules);
@@ -29,37 +30,6 @@ class DependencyConfig {
   @override
   String toString() {
     return 'DependencyConfig(groups: $groups)';
-  }
-}
-
-class DependencyRule {
-  final String name;
-  final bool allowed;
-  final String message;
-  final String from;
-  final String to;
-
-  DependencyRule({
-    required this.name,
-    required this.allowed,
-    required this.message,
-    required this.from,
-    required this.to,
-  });
-
-  static DependencyRule fromYaml(Map<String, dynamic> yaml) {
-    return DependencyRule(
-      name: yaml['name'],
-      allowed: yaml['allowed'],
-      message: yaml['message'],
-      from: yaml['from'],
-      to: yaml['to'],
-    );
-  }
-
-  @override
-  String toString() {
-    return 'DependencyRule(name: $name, allowed: $allowed, message: $message, from: $from, to: $to)';
   }
 }
 

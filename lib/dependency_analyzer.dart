@@ -19,17 +19,17 @@ class DependencyAnalyzer {
   DependencyAnalyzer(this.config);
 
   void analyze(String projectPath) async {
-    print('Analyzing project at $projectPath');
+    print('\x1B[32mAnalyzing project at $projectPath 📦\x1B[0m');
     final dir = Directory(projectPath);
     if (!dir.existsSync()) {
-      print('Error: Project directory not found at $projectPath');
+      print('\x1B[31mError: Project directory not found at $projectPath ❌\x1B[0m');
       return;
     }
 
     final packages = <Package>{};
     await for (final entity in dir.list(recursive: true)) {
       if (entity is File && entity.path.endsWith('pubspec.yaml')) {
-        print('Found package at: ${entity.parent.path}');
+        print('\x1B[32mFound package at: ${entity.parent.path} 📦\x1B[0m');
         packages.add(
           Package(
             name: entity.parent.path.split('/').last,
@@ -57,7 +57,15 @@ class DependencyAnalyzer {
       }
     }
 
-    print(graph);
+    print('\nDependency Graph:');
+    for (final entry in graph.entries) {
+      print('${entry.key}:');
+      for (final dep in entry.value) {
+        print('  └─ $dep');
+      }
+      print('');
+    }
+
     final errors = <String>{};
     for (var rule in config.rules) {
       try {
@@ -65,17 +73,22 @@ class DependencyAnalyzer {
       } on EvaluationError catch (e) {
         errors.add(e.message);
       } catch (e) {
-        print('Error evaluating rule ${rule.name}: $e');
+        print('\x1B[31mError evaluating rule ${rule.name}: $e ❌\x1B[0m');
         exit(1);
       }
     }
 
+    print('\n');
     if (errors.isNotEmpty) {
-      print('Found ${errors.length} errors:');
+      print('\x1B[31mFound ${errors.length} errors: ❌\x1B[0m');
       for (final error in errors) {
-        print(error);
+        print('\x1B[33m  - $error\x1B[0m');
       }
+    } else {
+      print('\x1B[32mNo errors found: ✅\x1B[0m');
     }
+
+    exit(errors.isNotEmpty ? 1 : 0);
   }
 
   Set<String> getDependenciesFromPackage(Package package) {
@@ -96,7 +109,6 @@ class DependencyAnalyzer {
       final devDeps = pubspec['dev_dependencies'] as Map;
       dependencies.addAll(devDeps.keys.cast<String>());
     }
-    print('Package ${package.name} has dependencies: $dependencies');
 
     return dependencies;
   }
@@ -116,7 +128,6 @@ abstract class DependencyRule {
   DependencyRule({required this.name, required this.description, required this.allowed});
 
   static DependencyRule fromYaml(YamlMap yaml) {
-    print(yaml);
     if (yaml['name'] == 'no_circular_dependencies') {
       return NoCircularDependenciesRule(allowed: yaml['allowed'], description: yaml['description']);
     } else if (yaml['name'] == 'no_core_to_feature') {
@@ -159,7 +170,6 @@ class NoCircularDependenciesRule extends DependencyRule {
             return true;
           }
         } else if (recursionStack.contains(neighbor)) {
-          print('Found circular dependency: ${path.join(' -> ')} -> $neighbor');
           circularDependencies.add('${path.join(' -> ')} -> $neighbor');
           return true;
         }
@@ -176,9 +186,11 @@ class NoCircularDependenciesRule extends DependencyRule {
       }
     }
 
-    print('Found ${circularDependencies.length} circular dependencies:');
+    print(
+        '\x1B[${circularDependencies.isEmpty ? '32' : '31'}mFound ${circularDependencies.length} circular dependencies: ${circularDependencies.isEmpty ? '✅' : '❌'}\x1B[0m');
     for (final dep in circularDependencies) {
-      print(dep);
+      print(
+          '  \x1B[${circularDependencies.isEmpty ? '32' : '31'}m- $dep ${circularDependencies.isEmpty ? '✅' : '❌'}\x1B[0m');
     }
     return circularDependencies;
   }
@@ -200,9 +212,11 @@ class NoCoreToFeatureRule extends DependencyRule {
         }
       }
     }
-    print('Found ${noCoreToFeature.length} no core to feature dependencies:');
+    print(
+        '\x1B[${noCoreToFeature.isEmpty ? '32' : '31'}mFound ${noCoreToFeature.length} no_core_to_feature dependencies: ${noCoreToFeature.isEmpty ? '✅' : '❌'}\x1B[0m');
     for (final dep in noCoreToFeature) {
-      print(dep);
+      print(
+          '  \x1B[${noCoreToFeature.isEmpty ? '32' : '31'}m- $dep ${noCoreToFeature.isEmpty ? '✅' : '❌'}\x1B[0m');
     }
     if (noCoreToFeature.isNotEmpty) {
       throw EvaluationError('Found no_core_to_feature dependencies: $noCoreToFeature');
@@ -226,9 +240,11 @@ class NoFeatureToFeatureRule extends DependencyRule {
       }
     }
 
-    print('Found ${noFeatureToFeature.length} no feature to feature dependencies:');
+    print(
+        '\x1B[${noFeatureToFeature.isEmpty ? '32' : '31'}mFound ${noFeatureToFeature.length} no_feature_to_feature dependencies: ${noFeatureToFeature.isEmpty ? '✅' : '❌'}\x1B[0m');
     for (final dep in noFeatureToFeature) {
-      print(dep);
+      print(
+          '  \x1B[${noFeatureToFeature.isEmpty ? '32' : '31'}m- $dep ${noFeatureToFeature.isEmpty ? '✅' : '❌'}\x1B[0m');
     }
     if (noFeatureToFeature.isNotEmpty) {
       throw EvaluationError('Found no_feature_to_feature dependencies: $noFeatureToFeature');

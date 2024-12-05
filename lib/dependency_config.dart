@@ -22,7 +22,10 @@ class DependencyConfig {
 
     final rules = <DependencyRule>[];
     for (final rule in yamlMap['rules']) {
-      rules.add(DependencyRule.fromYaml(rule as YamlMap));
+      final ruleInstance = DependencyRule.fromYaml(rule as YamlMap);
+      if (ruleInstance != null) {
+        rules.add(ruleInstance);
+      }
     }
 
     return DependencyConfig(groups: groups, rules: rules);

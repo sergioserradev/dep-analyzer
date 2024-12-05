@@ -10,7 +10,7 @@ abstract class DependencyRule {
 
   DependencyRule({required this.name, required this.description, required this.allowed});
 
-  static DependencyRule fromYaml(YamlMap yaml) {
+  static DependencyRule? fromYaml(YamlMap yaml) {
     if (yaml['name'] == 'no_circular_dependencies') {
       return NoCircularDependenciesRule(allowed: yaml['allowed'], description: yaml['description']);
     } else if (yaml['name'] == 'no_core_to_feature') {
@@ -18,7 +18,7 @@ abstract class DependencyRule {
     } else if (yaml['name'] == 'no_feature_to_feature') {
       return NoFeatureToFeatureRule(allowed: yaml['allowed'], description: yaml['description']);
     }
-    throw ArgumentError('Unknown rule: ${yaml['name']}');
+    return null;
   }
 
   void evaluate(Map<String, Set<String>> graph);

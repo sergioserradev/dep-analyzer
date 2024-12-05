@@ -1,4 +1,5 @@
-import 'package:dep_analyzer/dependency_analyzer.dart';
+import 'package:dep_analyzer/dependency_rule.dart';
+import 'package:dep_analyzer/feature_group.dart';
 import 'package:yaml/yaml.dart';
 
 class DependencyConfig {
@@ -30,17 +31,5 @@ class DependencyConfig {
   @override
   String toString() {
     return 'DependencyConfig(groups: $groups)';
-  }
-}
-
-class FeatureGroup {
-  final String name;
-  final List<String> features;
-
-  FeatureGroup({required this.name, required this.features});
-
-  @override
-  String toString() {
-    return 'FeatureGroup(name: $name, features: $features)';
   }
 }

@@ -29,7 +29,7 @@ void main(List<String> args) {
   }
 
   final configContent = configFile.readAsStringSync();
-  final config = DependencyConfig.fromYaml(configContent);
+  final config = Config.fromYaml(configContent);
 
   final analyzer = DependencyAnalyzer(config, rules: [CoreToCoreRule()]);
   analyzer.analyze(projectPath);
@@ -46,7 +46,7 @@ class CoreToCoreRule extends DependencyRule {
         );
 
   @override
-  void evaluate(Map<String, Set<String>> graph) {
+  void evaluate(Map<String, Set<String>> graph, Config config) {
     for (final entry in graph.entries) {
       if (entry.key.startsWith('core_') && entry.value.any((dep) => dep.startsWith('core_'))) {
         throw EvaluationError(

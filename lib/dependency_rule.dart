@@ -1,3 +1,4 @@
+import 'package:dep_analyzer/dependency_config.dart';
 import 'package:dep_analyzer/no_circular_dependencies_rule.dart';
 import 'package:dep_analyzer/no_core_to_feature_rule.dart';
 import 'package:dep_analyzer/no_feature_to_feature_rule.dart';
@@ -21,5 +22,5 @@ abstract class DependencyRule {
     return null;
   }
 
-  void evaluate(Map<String, Set<String>> graph);
+  void evaluate(Map<String, Set<String>> graph, Config config);
 }

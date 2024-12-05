@@ -1,12 +1,8 @@
 groups:
   - name: features
-    features:
-      - feature_a
-      - feature_b
+    pattern: "feature_*"
   - name: core
-    features:
-      - core_a
-      - core_b
+    pattern: "core_*"
 
 rules:
   - name: "no_circular_dependencies"

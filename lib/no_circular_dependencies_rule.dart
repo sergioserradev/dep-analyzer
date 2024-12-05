@@ -1,3 +1,4 @@
+import 'package:dep_analyzer/dependency_config.dart';
 import 'package:dep_analyzer/dependency_rule.dart';
 import 'package:dep_analyzer/evaluation_error.dart';
 
@@ -6,7 +7,7 @@ class NoCircularDependenciesRule extends DependencyRule {
       : super(name: 'no_circular_dependencies');
 
   @override
-  void evaluate(Map<String, Set<String>> graph) {
+  void evaluate(Map<String, Set<String>> graph, Config config) {
     final circularDependencies = _findCircularDependencies(graph);
     if (circularDependencies.isNotEmpty) {
       throw EvaluationError('Found circular dependencies: $circularDependencies');

@@ -7,7 +7,7 @@ import 'package:dep_analyzer/package.dart';
 import 'package:yaml/yaml.dart';
 
 class DependencyAnalyzer {
-  final DependencyConfig config;
+  final Config config;
   final List<DependencyRule> rules;
 
   DependencyAnalyzer(this.config, {this.rules = const []});
@@ -24,12 +24,20 @@ class DependencyAnalyzer {
     await for (final entity in dir.list(recursive: true)) {
       if (entity is File && entity.path.endsWith('pubspec.yaml')) {
         print('\x1B[32mFound package at: ${entity.parent.path} 📦\x1B[0m');
-        packages.add(
-          Package(
-            name: entity.parent.path.split('/').last,
-            path: entity.parent.path,
-          ),
-        );
+        final packageName = entity.parent.path.split('/').last;
+        packages.add(Package(name: packageName, path: entity.parent.path));
+
+        for (final group in config.groups) {
+          if (group.pattern != null) {
+            print(
+              '\x1B[32m  Checking package $packageName against pattern ${group.pattern} 📦\x1B[0m',
+            );
+            final regex = RegExp(group.pattern!);
+            if (regex.hasMatch(packageName)) {
+              group.features.add(packageName);
+            }
+          }
+        }
       }
     }
 
@@ -64,7 +72,7 @@ class DependencyAnalyzer {
     final allRules = [...config.rules, ...rules];
     for (final rule in allRules) {
       try {
-        rule.evaluate(graph);
+        rule.evaluate(graph, config);
       } on EvaluationError catch (e) {
         errors.add(e.message);
       } catch (e) {

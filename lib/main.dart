@@ -1,17 +1,36 @@
+import 'dart:io';
 
-i want to write a dart cli app that analyzes dependencies in a flutter project.
-The tool should read a yaml config file like:
+import 'package:dep_analyzer/dependency_analyzer.dart';
+import 'package:dep_analyzer/dependency_config.dart';
 
-```yaml
-groups:
-  - name: features
-    - feature_a
-    - feature_b
-  - name: core
-    - core_a
-    - core_b
-```
+import 'package:args/args.dart';
 
-The tool should then analyze each package in the project and 
-find invalid dependencies and circular dependencies. Dependencies inside groups can have 
-dependencies; only within their own group.
+void main(List<String> args) {
+  if (args.isEmpty) {
+    print('Usage: dart run dependency_analyzer <path_to_config> <project_path>');
+    return;
+  }
+
+  final parser = ArgParser()
+    ..addOption('config', abbr: 'c', defaultsTo: './config.yaml')
+    ..addOption('project', abbr: 'p', mandatory: true);
+
+  final parsedArgs = parser.parse(args);
+
+  final configPath = parsedArgs['config'] as String;
+  final projectPath = parsedArgs['project'] as String;
+
+  final configFile = File(configPath);
+  if (!configFile.existsSync()) {
+    print('Error: Configuration file not found at $configPath');
+    return;
+  }
+
+  final configContent = configFile.readAsStringSync();
+  final config = DependencyConfig.fromYaml(configContent);
+
+  final analyzer = DependencyAnalyzer(config);
+  analyzer.analyze(projectPath);
+
+  print('Dependency analysis completed.');
+}

@@ -11,8 +11,10 @@ class DependencyConfig {
     final groups = <FeatureGroup>[];
     for (final group in yamlMap['groups']) {
       final groupName = group['name'];
-      final packages = List<String>.from(group.values.expand((e) => e));
-      groups.add(FeatureGroup(name: groupName, features: packages));
+      final features = group['features'];
+      for (final feature in features) {
+        groups.add(FeatureGroup(name: groupName, features: [feature]));
+      }
     }
 
     return DependencyConfig(groups: groups);

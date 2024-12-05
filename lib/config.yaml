@@ -1,7 +1,9 @@
 groups:
   - name: features
-    - feature_a
-    - feature_b
+    features:
+      - feature_a
+      - feature_b
   - name: core
-    - core_a
-    - core_b
+    features:
+      - core_a
+      - core_b

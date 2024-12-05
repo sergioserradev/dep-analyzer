@@ -2,16 +2,17 @@ import 'package:collection/collection.dart';
 import 'package:dep_analyzer/dependency_config.dart';
 import 'package:dep_analyzer/dependency_rule.dart';
 import 'package:dep_analyzer/evaluation_error.dart';
+import 'package:dep_analyzer/package.dart';
 
 class NoCoreToFeatureRule extends DependencyRule {
   NoCoreToFeatureRule({required super.allowed, required super.description})
       : super(name: 'no_core_to_feature');
 
   @override
-  void evaluate(Map<String, Set<String>> graph, Config config) {
+  void evaluate(Map<Package, Set<String>> graph, Config config) {
     final noCoreToFeature = <String>{};
     for (final entry in graph.entries) {
-      final isCore = entry.key.startsWith('core_');
+      final isCore = entry.key.name.startsWith('core_');
       for (final dep in entry.value) {
         final group = config.groups.firstWhereOrNull((group) => group.features.contains(dep));
         if (isCore && group != null && group.name == 'features') {

@@ -1,13 +1,16 @@
+import 'package:collection/collection.dart';
 import 'package:dep_analyzer/dependency_config.dart';
 import 'package:dep_analyzer/dependency_rule.dart';
 import 'package:dep_analyzer/evaluation_error.dart';
+import 'package:dep_analyzer/no_core_to_feature_rule.dart';
+import 'package:dep_analyzer/package.dart';
 
 class NoCircularDependenciesRule extends DependencyRule {
   NoCircularDependenciesRule({required super.allowed, required super.description})
       : super(name: 'no_circular_dependencies');
 
   @override
-  void evaluate(Map<String, Set<String>> graph, Config config) {
+  void evaluate(Map<Package, Set<String>> graph, Config config) {
     final circularDependencies = _findCircularDependencies(graph);
     if (circularDependencies.isNotEmpty) {
       throw EvaluationError('Found circular dependencies: $circularDependencies');
@@ -15,17 +18,23 @@ class NoCircularDependenciesRule extends DependencyRule {
   }
 
   // Find circular dependencies using DFS
-  Set<String> _findCircularDependencies(Map<String, Set<String>> graph) {
+  Set<String> _findCircularDependencies(Map<Package, Set<String>> graph) {
     final visited = <String>{};
     final recursionStack = <String>{};
     final circularDependencies = <String>{};
 
-    bool hasCycle(String node, Set<String> path) {
-      visited.add(node);
-      recursionStack.add(node);
-      path.add(node);
+    bool hasCycle(String nodeName, Set<String> path) {
+      visited.add(nodeName);
+      recursionStack.add(nodeName);
+      path.add(nodeName);
 
-      for (final neighbor in graph[node] ?? {}) {
+      final node = graph.keys.firstWhereOrNull((e) => e.name == nodeName);
+      if (node == null) {
+        recursionStack.remove(nodeName);
+        return false;
+      }
+
+      for (final neighbor in graph[node]!) {
         if (!visited.contains(neighbor)) {
           if (hasCycle(neighbor, path)) {
             return true;
@@ -36,14 +45,14 @@ class NoCircularDependenciesRule extends DependencyRule {
         }
       }
 
-      recursionStack.remove(node);
+      recursionStack.remove(nodeName);
       return false;
     }
 
     // Check each unvisited node for cycles
     for (final node in graph.keys) {
-      if (!visited.contains(node)) {
-        hasCycle(node, <String>{});
+      if (!visited.contains(node.name)) {
+        hasCycle(node.name, <String>{});
       }
     }
 

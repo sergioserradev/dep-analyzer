@@ -18,15 +18,16 @@ class Config {
       final groupName = group['name'];
       final pattern = group['pattern'];
       final features = group['features'];
+      final folder = group['folder'] as String?;
 
-      if (pattern != null && features != null) {
+      if (pattern != null && features != null && folder != null) {
         print(
-          'Group $groupName in YAML config must have either a "pattern" or "features" key, not both',
+          'Group $groupName in YAML config must have either a "pattern", "features" or "folder" key, not both',
         );
         exit(1);
       }
 
-      groups.add(FeatureGroup(name: groupName, features: [], pattern: pattern));
+      groups.add(FeatureGroup(name: groupName, features: [], pattern: pattern, folder: folder));
       if (features != null) {
         for (final feature in features) {
           groups.last.features.add(feature);

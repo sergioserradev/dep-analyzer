@@ -25,7 +25,16 @@ class DependencyAnalyzer {
       if (entity is File && entity.path.endsWith('pubspec.yaml')) {
         print('\x1B[32mFound package at: ${entity.parent.path} 📦\x1B[0m');
         final packageName = entity.parent.path.split('/').last;
-        packages.add(Package(name: packageName, path: entity.parent.path));
+        packages.add(
+          Package(
+            name: packageName,
+            path: entity.parent.path,
+            parent: entity.parent.path
+                .split('/')
+                .sublist(0, entity.parent.path.split('/').length - 1)
+                .join('/'),
+          ),
+        );
 
         for (final group in config.groups) {
           if (group.pattern != null) {
@@ -41,27 +50,15 @@ class DependencyAnalyzer {
       }
     }
 
-    final packageDeps = <String, Set<String>>{};
+    final graph = <Package, Set<String>>{};
     for (final package in packages) {
       final deps = getDependenciesFromPackage(package);
-      packageDeps[package.name] = deps;
-    }
-
-    // Create a graph representation of package dependencies
-    final graph = <String, Set<String>>{};
-    for (final entry in packageDeps.entries) {
-      // Initialize empty set if not exists
-      graph.putIfAbsent(entry.key, () => <String>{});
-
-      // Add all dependencies for this package
-      for (final dep in entry.value) {
-        graph[entry.key]!.add(dep);
-      }
+      graph[package] = deps;
     }
 
     print('\nDependency Graph:');
     for (final entry in graph.entries) {
-      print('${entry.key}:');
+      print('${entry.key.parent}:${entry.key.name}:');
       for (final dep in entry.value) {
         print('  └─ $dep');
       }

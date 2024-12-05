@@ -58,14 +58,14 @@ class DependencyAnalyzer {
     }
 
     print(graph);
-    findCircularDependencies(graph);
+    if (config.rules.any((rule) => rule.name == 'no_circular_dependencies')) {
+      findCircularDependencies(graph);
+    }
+
     findInvalidDependencies(graph, config);
   }
 
-  Set<String> findInvalidDependencies(
-    Map<String, Set<String>> graph,
-    DependencyConfig config,
-  ) {
+  Set<String> findInvalidDependencies(Map<String, Set<String>> graph, DependencyConfig config) {
     final invalidDependencies = <String>{};
     for (final entry in graph.entries) {
       final isCore = entry.key.startsWith('core_');

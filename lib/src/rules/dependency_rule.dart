@@ -1,7 +1,7 @@
-import 'package:dep_analyzer/dependency_config.dart';
-import 'package:dep_analyzer/no_circular_dependencies_rule.dart';
-import 'package:dep_analyzer/package_rule.dart';
-import 'package:dep_analyzer/package.dart';
+import 'package:dep_analyzer/src/dependency_config.dart';
+import 'package:dep_analyzer/src/rules/no_circular_dependencies_rule.dart';
+import 'package:dep_analyzer/src/rules/package_rule.dart';
+import 'package:dep_analyzer/src/package.dart';
 import 'package:yaml/yaml.dart';
 
 abstract class DependencyRule {

@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
-import 'package:dep_analyzer/dependency_config.dart';
-import 'package:dep_analyzer/dependency_rule.dart';
-import 'package:dep_analyzer/evaluation_error.dart';
-import 'package:dep_analyzer/package.dart';
-import 'package:dep_analyzer/print_violations.dart';
+import 'package:dep_analyzer/src/dependency_config.dart';
+import 'package:dep_analyzer/src/rules/dependency_rule.dart';
+import 'package:dep_analyzer/src/evaluation_error.dart';
+import 'package:dep_analyzer/src/package.dart';
+import 'package:dep_analyzer/src/util/print_violations.dart';
 
 class NoCircularDependenciesRule extends DependencyRule {
   NoCircularDependenciesRule({required super.allowed, required super.description})

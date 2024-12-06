@@ -7,12 +7,12 @@ rules:
     from: "pattern:feature_*"
     to: "pattern:feature_*"
 
-  - name: "no_feature_to_feature"
+  - key: "no_package_to_package"
     description: "Packages cannot depend on other packages in shared folder"
     from: "folder:shared"
     to: "folder:shared"
-    
-  - name: "no_feature_to_feature"
+
+  - key: "no_package_to_package"
     description: "Feature b cannot depend on feature a and vice versa"
     from: "feature:feature_b"
     to: "feature:feature_a"

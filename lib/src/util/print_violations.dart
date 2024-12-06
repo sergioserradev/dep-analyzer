@@ -1,4 +1,4 @@
-import 'evaluation_error.dart';
+import '../evaluation_error.dart';
 
 void printViolations(Set<String> violations, String context) {
   print(

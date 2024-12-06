@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:dep_analyzer/dependency_config.dart';
-import 'package:dep_analyzer/evaluation_error.dart';
-import 'package:dep_analyzer/package.dart';
+import 'package:dep_analyzer/src/dependency_config.dart';
+import 'package:dep_analyzer/src/evaluation_error.dart';
+import 'package:dep_analyzer/src/package.dart';
 import 'package:yaml/yaml.dart';
 
 class DependencyAnalyzer {

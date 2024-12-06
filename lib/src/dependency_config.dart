@@ -1,4 +1,4 @@
-import 'package:dep_analyzer/dependency_rule.dart';
+import 'package:dep_analyzer/src/rules/dependency_rule.dart';
 import 'package:yaml/yaml.dart';
 
 class Config {

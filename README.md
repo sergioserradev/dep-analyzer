@@ -2,6 +2,8 @@
 
 A static analysis tool for enforcing architectural boundaries and dependency rules in Dart/Flutter projects.
 
+![Screenshot](./images/screenshot.png)
+
 ## Features ✨
 
 - **Circular Dependency Detection**: Automatically detect and prevent circular dependencies between packages
@@ -14,7 +16,7 @@ A static analysis tool for enforcing architectural boundaries and dependency rul
 
 Add `dep_analyzer` to your `pubspec.yaml`:
 
-```yaml
+```**yaml**
 dependencies:
   dep_analyzer:
     path: ../dep_analyzer
@@ -25,8 +27,12 @@ dependencies:
 To run the analysis, use the following command:
 
 ```bash
-dart run dep_analyzer
+dart run dep_analyzer --project=<path_to_project> --config=<path_to_config> --graph
 ```
+
+- `--project`: The path to the project to analyze
+- `--config`: The path to the config file
+- `--graph`: Whether to print the dependency graph
 
 ## Configuration 🔧
 

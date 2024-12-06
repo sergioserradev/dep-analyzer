@@ -7,8 +7,9 @@ import 'package:yaml/yaml.dart';
 
 class DependencyAnalyzer {
   final Config config;
+  final bool printGraph;
 
-  DependencyAnalyzer(this.config);
+  DependencyAnalyzer(this.config, {this.printGraph = false});
 
   void analyze(String projectPath) async {
     print('\x1B[32mAnalyzing project at $projectPath 📦\x1B[0m');
@@ -42,13 +43,15 @@ class DependencyAnalyzer {
       graph[package] = deps;
     }
 
-    print('\nDependency Graph:');
-    for (final entry in graph.entries) {
-      print('${entry.key.parent}:${entry.key.name}:');
-      for (final dep in entry.value) {
-        print('  └─ $dep');
+    if (printGraph) {
+      print('\nDependency Graph:');
+      for (final entry in graph.entries) {
+        print('${entry.key.parent}:${entry.key.name}:');
+        for (final dep in entry.value) {
+          print('  └─ $dep');
+        }
+        print('');
       }
-      print('');
     }
 
     final errors = <String>{};

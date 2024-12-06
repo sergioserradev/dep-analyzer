@@ -20,13 +20,13 @@ abstract class DependencyRule {
   });
 
   static DependencyRule? fromYaml(YamlMap yaml) {
-    if (yaml['name'] == 'no_circular_dependencies') {
+    if (yaml['key'] == 'no_circular_dependencies') {
       return NoCircularDependenciesRule(
         allowed: yaml['allowed'] ?? false,
         description: yaml['description'],
       );
     }
-    if (yaml['name'] == 'no_feature_to_feature') {
+    if (yaml['key'] == 'no_package_to_package') {
       return PacakgeRule(
         description: yaml['description'],
         from: yaml['from'],

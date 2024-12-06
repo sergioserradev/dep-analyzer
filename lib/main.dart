@@ -4,9 +4,6 @@ import 'package:dep_analyzer/dependency_analyzer.dart';
 import 'package:dep_analyzer/dependency_config.dart';
 
 import 'package:args/args.dart';
-import 'package:dep_analyzer/dependency_rule.dart';
-import 'package:dep_analyzer/evaluation_error.dart';
-import 'package:dep_analyzer/package.dart';
 
 void main(List<String> args) {
   if (args.isEmpty) {
@@ -16,13 +13,14 @@ void main(List<String> args) {
 
   final parser = ArgParser()
     ..addOption('config', abbr: 'c', defaultsTo: './config.yaml')
-    ..addOption('project', abbr: 'p', mandatory: true);
+    ..addOption('project', abbr: 'p', mandatory: true)
+    ..addFlag('graph', abbr: 'g', defaultsTo: false);
 
   final parsedArgs = parser.parse(args);
 
   final configPath = parsedArgs['config'] as String;
   final projectPath = parsedArgs['project'] as String;
-
+  final graph = parsedArgs['graph'] as bool;
   final configFile = File(configPath);
   if (!configFile.existsSync()) {
     print('Error: Configuration file not found at $configPath');
@@ -32,7 +30,7 @@ void main(List<String> args) {
   final configContent = configFile.readAsStringSync();
   final config = Config.fromYaml(configContent);
 
-  final analyzer = DependencyAnalyzer(config);
+  final analyzer = DependencyAnalyzer(config, printGraph: graph);
   analyzer.analyze(projectPath);
 
   print('Dependency analysis completed.');

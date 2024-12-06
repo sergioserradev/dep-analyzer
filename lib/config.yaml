@@ -1,11 +1,3 @@
-groups:
-  - name: features
-    pattern: "feature_*"
-  - name: shared
-    folder: "shared"
-  - name: core
-    pattern: "core_*"
-
 rules:
   - name: "no_circular_dependencies"
     description: "Circular dependencies are not allowed"

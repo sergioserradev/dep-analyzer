@@ -33,18 +33,6 @@ class DependencyAnalyzer {
                 .join('/'),
           ),
         );
-
-        for (final group in config.groups) {
-          if (group.pattern != null) {
-            print(
-              '\x1B[32m  Checking package $packageName against pattern ${group.pattern} 📦\x1B[0m',
-            );
-            final regex = RegExp(group.pattern!);
-            if (regex.hasMatch(packageName)) {
-              group.features.add(packageName);
-            }
-          }
-        }
       }
     }
 

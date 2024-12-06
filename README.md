@@ -40,24 +40,24 @@ Create a `config.yaml` file in the root of your project with the rules you want 
 
 ```yaml
 rules:
-  - name: "no_circular_dependencies"
+  - key: "no_circular_dependencies"
     description: "Circular dependencies are not allowed"
 
-  - name: "no_feature_to_feature"
+  - key: "no_package_to_package"
+    description: "Features cannot depend on other features"
     from: "pattern:feature_*"
     to: "pattern:feature_*"
-    description: "Features cannot depend on other features"
 
-  - name: "no_feature_to_feature"
+  - key: "no_package_to_package"
+    description: "Packages cannot depend on other packages in shared folder"
     from: "folder:shared"
     to: "folder:shared"
-    description: "Packages cannot depend on other packages in shared folder"
 
-  - name: "no_feature_to_feature"
+  - key: "no_package_to_package"
+    description: "Feature b cannot depend on feature a and vice versa"
     from: "feature:feature_b"
     to: "feature:feature_a"
     inverse: true # This rule is inverse because we want to avoid circular dependencies
-    description: "Feature b cannot depend on feature a and vice versa"
 ```
 
 ### Types of rules

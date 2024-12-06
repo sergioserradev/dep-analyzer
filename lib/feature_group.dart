@@ -3,11 +3,18 @@ class FeatureGroup {
   final String? pattern;
   final List<String> features;
   final String? folder;
+  final bool? inverse;
 
-  FeatureGroup({required this.name, required this.features, this.pattern, this.folder});
+  FeatureGroup({
+    required this.name,
+    required this.features,
+    this.pattern,
+    this.folder,
+    this.inverse,
+  });
 
   @override
   String toString() {
-    return 'FeatureGroup(name: $name, features: $features, pattern: $pattern, folder: $folder)';
+    return 'FeatureGroup(name: $name, features: $features, pattern: $pattern, folder: $folder, inverse: $inverse)';
   }
 }

@@ -27,7 +27,9 @@ class Config {
         exit(1);
       }
 
-      groups.add(FeatureGroup(name: groupName, features: [], pattern: pattern, folder: folder));
+      groups.add(
+        FeatureGroup(features: [], name: groupName, pattern: pattern, folder: folder),
+      );
       if (features != null) {
         for (final feature in features) {
           groups.last.features.add(feature);

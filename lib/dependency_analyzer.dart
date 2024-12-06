@@ -1,16 +1,14 @@
 import 'dart:io';
 
 import 'package:dep_analyzer/dependency_config.dart';
-import 'package:dep_analyzer/dependency_rule.dart';
 import 'package:dep_analyzer/evaluation_error.dart';
 import 'package:dep_analyzer/package.dart';
 import 'package:yaml/yaml.dart';
 
 class DependencyAnalyzer {
   final Config config;
-  final List<DependencyRule> rules;
 
-  DependencyAnalyzer(this.config, {this.rules = const []});
+  DependencyAnalyzer(this.config);
 
   void analyze(String projectPath) async {
     print('\x1B[32mAnalyzing project at $projectPath 📦\x1B[0m');
@@ -66,8 +64,7 @@ class DependencyAnalyzer {
     }
 
     final errors = <String>{};
-    final allRules = [...config.rules, ...rules];
-    for (final rule in allRules) {
+    for (final rule in config.rules) {
       try {
         rule.evaluate(graph, config);
       } on EvaluationError catch (e) {

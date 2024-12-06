@@ -1,7 +1,6 @@
 import 'package:dep_analyzer/dependency_config.dart';
 import 'package:dep_analyzer/no_circular_dependencies_rule.dart';
-import 'package:dep_analyzer/no_core_to_feature_rule.dart';
-import 'package:dep_analyzer/no_feature_to_feature_rule.dart';
+import 'package:dep_analyzer/package_rule.dart';
 import 'package:dep_analyzer/package.dart';
 import 'package:yaml/yaml.dart';
 
@@ -23,20 +22,17 @@ abstract class DependencyRule {
   static DependencyRule? fromYaml(YamlMap yaml) {
     if (yaml['name'] == 'no_circular_dependencies') {
       return NoCircularDependenciesRule(
-        allowed: yaml['allowed'],
+        allowed: yaml['allowed'] ?? false,
         description: yaml['description'],
       );
-    } else if (yaml['name'] == 'no_core_to_feature') {
-      return NoCoreToFeatureRule(
-        allowed: yaml['allowed'],
-        description: yaml['description'],
-      );
-    } else if (yaml['name'] == 'no_feature_to_feature') {
-      return NoFeatureToFeatureRule(
-        allowed: yaml['allowed'],
+    }
+    if (yaml['name'] == 'no_feature_to_feature') {
+      return PacakgeRule(
         description: yaml['description'],
         from: yaml['from'],
         to: yaml['to'],
+        allowed: yaml['allowed'] ?? false,
+        inverse: yaml['inverse'] ?? false,
       );
     }
     return null;

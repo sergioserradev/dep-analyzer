@@ -2,8 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:dep_analyzer/dependency_config.dart';
 import 'package:dep_analyzer/dependency_rule.dart';
 import 'package:dep_analyzer/evaluation_error.dart';
-import 'package:dep_analyzer/no_core_to_feature_rule.dart';
 import 'package:dep_analyzer/package.dart';
+import 'package:dep_analyzer/print_violations.dart';
 
 class NoCircularDependenciesRule extends DependencyRule {
   NoCircularDependenciesRule({required super.allowed, required super.description})
@@ -56,12 +56,8 @@ class NoCircularDependenciesRule extends DependencyRule {
       }
     }
 
-    print(
-        '\x1B[${circularDependencies.isEmpty ? '32' : '31'}mFound ${circularDependencies.length} circular dependencies: ${circularDependencies.isEmpty ? '✅' : '❌'}\x1B[0m');
-    for (final dep in circularDependencies) {
-      print(
-          '  \x1B[${circularDependencies.isEmpty ? '32' : '31'}m- $dep ${circularDependencies.isEmpty ? '✅' : '❌'}\x1B[0m');
-    }
+    printViolations(circularDependencies, 'circular dependencies');
+
     return circularDependencies;
   }
 }

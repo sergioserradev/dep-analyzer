@@ -1,12 +1,16 @@
+import 'package:collection/collection.dart';
 import 'package:dep_analyzer/dependency_config.dart';
 import 'package:dep_analyzer/dependency_rule.dart';
-import 'package:dep_analyzer/evaluation_error.dart';
 import 'package:dep_analyzer/package.dart';
+import 'package:dep_analyzer/print_violations.dart';
 
-class NoFeatureToFeatureRule extends DependencyRule {
-  NoFeatureToFeatureRule({
+class PacakgeRule extends DependencyRule {
+  final bool inverse;
+
+  PacakgeRule({
     required super.allowed,
     required super.description,
+    this.inverse = false,
     super.from,
     super.to,
   }) : super(name: 'no_feature_to_feature');
@@ -31,19 +35,7 @@ class NoFeatureToFeatureRule extends DependencyRule {
         }
       }
 
-      print(
-          '\x1B[${noPackageToPackage.isEmpty ? '32' : '31'}mFound ${noPackageToPackage.length} no_package_to_package dependencies in folder $fromFolder: ${noPackageToPackage.isEmpty ? '✅' : '❌'}\x1B[0m');
-      for (final dep in noPackageToPackage) {
-        print(
-          '  \x1B[${noPackageToPackage.isEmpty ? '32' : '31'}m- $dep ${noPackageToPackage.isEmpty ? '✅' : '❌'}\x1B[0m',
-        );
-      }
-
-      if (noPackageToPackage.isNotEmpty) {
-        throw EvaluationError(
-          'Found no_package_to_package dependencies: $noPackageToPackage in folder $fromFolder',
-        );
-      }
+      printViolations(noPackageToPackage, 'in folder $fromFolder');
     }
   }
 
@@ -65,31 +57,47 @@ class NoFeatureToFeatureRule extends DependencyRule {
         }
       }
 
-      print(
-          '\x1B[${noPackageToPackage.isEmpty ? '32' : '31'}mFound ${noPackageToPackage.length} no_package_to_package dependencies with pattern $fromPattern: ${noPackageToPackage.isEmpty ? '✅' : '❌'}\x1B[0m');
-      for (final dep in noPackageToPackage) {
-        print(
-          '  \x1B[${noPackageToPackage.isEmpty ? '32' : '31'}m- $dep ${noPackageToPackage.isEmpty ? '✅' : '❌'}\x1B[0m',
-        );
-      }
+      printViolations(noPackageToPackage, 'with pattern $fromPattern');
+    }
+  }
 
-      if (noPackageToPackage.isNotEmpty) {
-        throw EvaluationError(
-          'Found no_package_to_package dependencies: $noPackageToPackage with pattern $fromPattern',
-        );
+  void checkNoFeatureToFeature(Map<Package, Set<String>> graph, Config config) {
+    final noPackageToPackage = <String>{};
+
+    final fromFeature = from!.split(':')[1];
+    final toFeature = to!.split(':')[1];
+
+    final fromPackage = graph.keys.firstWhereOrNull((package) => fromFeature == package.name);
+    final toPackage = graph.keys.firstWhereOrNull((package) => toFeature == package.name);
+
+    if (fromPackage == null || toPackage == null) {
+      return;
+    }
+
+    final fromPackageDeps = graph[fromPackage]!;
+    final toPackageDeps = graph[toPackage]!;
+
+    if (fromPackageDeps.contains(toFeature)) {
+      noPackageToPackage.add('${toPackage.name} -> ${fromPackage.name}');
+    }
+
+    if (inverse) {
+      if (toPackageDeps.contains(fromFeature)) {
+        noPackageToPackage.add('${fromPackage.name} -> ${toPackage.name}');
       }
     }
+
+    printViolations(noPackageToPackage, 'from $fromFeature to $toFeature');
   }
 
   @override
   void evaluate(Map<Package, Set<String>> graph, Config config) {
-    final noFeatureToFeature = <String>{};
-
     final fromParts = from!.split(':');
     final fromType = fromParts[0];
 
     final checkFolder = fromType == 'folder';
     final checkPattern = fromType == 'pattern';
+    final checkFeature = fromType == 'feature';
 
     if (checkFolder) {
       checkNoPackageToPackageInFolder(graph, config);
@@ -98,6 +106,11 @@ class NoFeatureToFeatureRule extends DependencyRule {
 
     if (checkPattern) {
       checkNoPackageToPackageInPattern(graph, config);
+      return;
+    }
+
+    if (checkFeature) {
+      checkNoFeatureToFeature(graph, config);
       return;
     }
   }

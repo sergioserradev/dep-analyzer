@@ -32,29 +32,8 @@ void main(List<String> args) {
   final configContent = configFile.readAsStringSync();
   final config = Config.fromYaml(configContent);
 
-  final analyzer = DependencyAnalyzer(config, rules: [CoreToCoreRule()]);
+  final analyzer = DependencyAnalyzer(config);
   analyzer.analyze(projectPath);
 
   print('Dependency analysis completed.');
-}
-
-class CoreToCoreRule extends DependencyRule {
-  CoreToCoreRule()
-      : super(
-          name: 'core_to_core',
-          allowed: false,
-          description: 'Core modules can depend on other core modules',
-        );
-
-  @override
-  void evaluate(Map<Package, Set<String>> graph, Config config) {
-    for (final entry in graph.entries) {
-      if (entry.key.name.startsWith('core_') && entry.value.any((dep) => dep.startsWith('core_'))) {
-        throw EvaluationError(
-          'Core module ${entry.key} depends on another core module ${entry.value}',
-        );
-      }
-    }
-    print('\x1B[32mFound 0 core_to_core dependencies found ✅\x1B[0m');
-  }
 }

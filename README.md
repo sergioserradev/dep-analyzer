@@ -1,5 +1,8 @@
 # Dependency Analyzer 📦
 
+<img src="./images/screenshot2.png" style="width:340px; height:300px; display: block; margin: 0 auto" />
+<br>
+
 A static analysis tool for enforcing architectural boundaries and dependency rules in Dart/Flutter projects.
 
 ![Screenshot](./images/screenshot.png)

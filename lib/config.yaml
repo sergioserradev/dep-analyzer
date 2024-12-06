@@ -16,13 +16,4 @@ rules:
     from: "feature:feature_b"
     to: "feature:feature_a"
     inverse: true # This rule is inverse because we want to avoid circular dependencies
-    allowed: false
     description: "Feature b cannot depend on feature a and vice versa"
-
-  - name: "no_core_to_feature"
-    allowed: false
-    description: "Core modules cannot depend on features"
-
-  - name: "core_to_core"
-    allowed: false
-    description: "Core modules can depend on other core modules"

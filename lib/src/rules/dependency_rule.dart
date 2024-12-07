@@ -1,4 +1,4 @@
-import 'package:dep_analyzer/src/dependency_config.dart';
+import 'package:dep_analyzer/src/config.dart';
 import 'package:dep_analyzer/src/rules/no_circular_dependencies_rule.dart';
 import 'package:dep_analyzer/src/rules/package_rule.dart';
 import 'package:dep_analyzer/src/package.dart';

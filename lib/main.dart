@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dep_analyzer/src/dependency_analyzer.dart';
-import 'package:dep_analyzer/src/dependency_config.dart';
+import 'package:dep_analyzer/src/config.dart';
 
 import 'package:args/args.dart';
 

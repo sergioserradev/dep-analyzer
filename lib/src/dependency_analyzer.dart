@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dep_analyzer/src/dependency_config.dart';
+import 'package:dep_analyzer/src/config.dart';
 import 'package:dep_analyzer/src/evaluation_error.dart';
 import 'package:dep_analyzer/src/package.dart';
 import 'package:yaml/yaml.dart';
@@ -24,16 +24,11 @@ class DependencyAnalyzer {
       if (entity is File && entity.path.endsWith('pubspec.yaml')) {
         print('\x1B[32mFound package at: ${entity.parent.path} 📦\x1B[0m');
         final packageName = entity.parent.path.split('/').last;
-        packages.add(
-          Package(
-            name: packageName,
-            path: entity.parent.path,
-            parent: entity.parent.path
-                .split('/')
-                .sublist(0, entity.parent.path.split('/').length - 1)
-                .join('/'),
-          ),
-        );
+
+        final splits = entity.parent.path.split('/');
+        final parent = splits.sublist(0, splits.length - 1).join('/');
+
+        packages.add(Package(name: packageName, path: entity.parent.path, parent: parent));
       }
     }
 

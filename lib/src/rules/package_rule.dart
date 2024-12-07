@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:dep_analyzer/src/dependency_config.dart';
+import 'package:dep_analyzer/src/config.dart';
 import 'package:dep_analyzer/src/rules/dependency_rule.dart';
 import 'package:dep_analyzer/src/package.dart';
 import 'package:dep_analyzer/src/util/print_violations.dart';

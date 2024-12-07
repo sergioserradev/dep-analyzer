@@ -4,16 +4,15 @@ import 'package:dep_analyzer/src/rules/dependency_rule.dart';
 import 'package:dep_analyzer/src/package.dart';
 import 'package:dep_analyzer/src/util/print_violations.dart';
 
-class PacakgeRule extends DependencyRule {
+class PackageRule extends DependencyRule {
   final bool inverse;
 
-  PacakgeRule({
-    required super.allowed,
+  PackageRule({
     required super.description,
     this.inverse = false,
     super.from,
     super.to,
-  }) : super(name: 'no_feature_to_feature');
+  }) : super(name: 'no_package_to_package');
 
   void checkNoPackageToPackageInFolder(Map<Package, Set<String>> graph, Config config) {
     final noPackageToPackage = <String>{};
@@ -27,11 +26,11 @@ class PacakgeRule extends DependencyRule {
           (package.parent!.endsWith(fromFolder) || package.parent!.endsWith(toFolder)),
     );
 
-    for (final package in packagesToEvaluate) {
+    for (final fromPackage in packagesToEvaluate) {
       for (final toPackage in packagesToEvaluate) {
         final toPackageDeps = graph[toPackage]!;
-        if (toPackageDeps.contains(package.name)) {
-          noPackageToPackage.add('${package.name} -> ${toPackage.name}');
+        if (toPackageDeps.contains(fromPackage.name)) {
+          noPackageToPackage.add('${fromPackage.name} -> ${toPackage.name}');
         }
       }
 

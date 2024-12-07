@@ -6,7 +6,7 @@ import 'package:dep_analyzer/src/package.dart';
 import 'package:dep_analyzer/src/util/print_violations.dart';
 
 class NoCircularDependenciesRule extends DependencyRule {
-  NoCircularDependenciesRule({required super.allowed, required super.description})
+  NoCircularDependenciesRule({required super.description})
       : super(name: 'no_circular_dependencies');
 
   @override

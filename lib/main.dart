@@ -5,7 +5,7 @@ import 'package:dep_analyzer/src/config.dart';
 
 import 'package:args/args.dart';
 
-void main(List<String> args) {
+void main(List<String> args) async {
   if (args.isEmpty) {
     print('Usage: dart run dependency_analyzer <path_to_config> <project_path>');
     return;
@@ -31,7 +31,8 @@ void main(List<String> args) {
   final config = Config.fromYaml(configContent);
 
   final analyzer = DependencyAnalyzer(config, printGraph: graph);
-  analyzer.analyze(projectPath);
+  final errors = await analyzer.analyze(projectPath);
 
   print('Dependency analysis completed.');
+  exit(errors.isNotEmpty ? 1 : 0);
 }

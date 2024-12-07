@@ -11,12 +11,12 @@ class DependencyAnalyzer {
 
   DependencyAnalyzer(this.config, {this.printGraph = false});
 
-  void analyze(String projectPath) async {
+  Future<Set<String>> analyze(String projectPath) async {
     print('\x1B[32mAnalyzing project at $projectPath 📦\x1B[0m');
     final dir = Directory(projectPath);
     if (!dir.existsSync()) {
       print('\x1B[31mError: Project directory not found at $projectPath ❌\x1B[0m');
-      return;
+      return {};
     }
 
     final packages = <Package>{};
@@ -71,7 +71,7 @@ class DependencyAnalyzer {
       print('\x1B[32mNo errors found: ✅\x1B[0m');
     }
 
-    exit(errors.isNotEmpty ? 1 : 0);
+    return errors;
   }
 
   Set<String> getDependenciesFromPackage(Package package) {
